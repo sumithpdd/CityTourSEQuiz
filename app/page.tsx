@@ -79,21 +79,34 @@ export default function Home() {
       </div>
 
       <div className="hero-intro card">
-        <div>
+        <div className="hero-copy">
           <span className="pill">Sitecore City Tour London</span>
           <h1 className="hero-title">SitecoreAI Knowledge Sprint</h1>
           <p className="hero-subtitle">
             Five questions. One minute. Discover how ready you are for Sitecore’s AI-powered era.
           </p>
-        </div>
-        <div className="hero-flags">
-          <div>
-            <p className="flag-label">Question pool</p>
-            <p className="flag-value">20+</p>
+          <div className="hero-flags">
+            <div>
+              <p className="flag-label">Question pool</p>
+              <p className="flag-value">20+</p>
+            </div>
+            <div>
+              <p className="flag-label">Data retention</p>
+              <p className="flag-value">30 days</p>
+            </div>
           </div>
-          <div>
-            <p className="flag-label">Data retention</p>
-            <p className="flag-value">30 days</p>
+        </div>
+        <div className="hero-side">
+          <div className="qr-card glass-card">
+            <p className="qr-title">Scan to play</p>
+            <Image
+              src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=https%3A%2F%2Fcity-tour-se-quiz.vercel.app%2F"
+              alt="QR code linking to Sitecore City Tour Quiz"
+              width={220}
+              height={220}
+              unoptimized
+            />
+            <p className="qr-url">city-tour-se-quiz.vercel.app</p>
           </div>
         </div>
       </div>

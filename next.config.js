@@ -11,6 +11,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'delivery-sitecore.sitecorecontenthub.cloud',
       },
+      {
+        protocol: 'https',
+        hostname: 'api.qrserver.com',
+      },
     ],
     // Allow SVG images from local files
     dangerouslyAllowSVG: true,
