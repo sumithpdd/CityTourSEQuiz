@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Question, getRandomQuestions, shuffleAnswers, initialQuestions, shuffleArray } from '@/lib/questions';
 import { getDbInstance, getAuthInstance } from '@/lib/firebase';
 import { collection, addDoc, doc, setDoc, getDocs } from 'firebase/firestore';
+import { logClientError } from '@/lib/client-logger';
 
 interface QuizProps {
   userData: {
@@ -57,8 +58,18 @@ export function Quiz({ userData, onComplete }: QuizProps) {
           shuffledAnswersMap[q.id] = shuffleAnswers(q);
         });
         setShuffledAnswers(shuffledAnswersMap);
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error loading questions:', error);
+        // Send details to server so failures on mobile/etc. show up in Vercel logs
+        logClientError({
+          source: 'quiz_loadQuestions',
+          message: error?.message ?? 'Unknown error loading questions',
+          errorName: error?.name,
+          stack: error?.stack,
+          extra: {
+            hasWindow: typeof window !== 'undefined',
+          },
+        });
         // Fallback to local questions on error
         const randomQuestions = getRandomQuestions(QUIZ_QUESTION_COUNT);
         setQuestions(randomQuestions);
@@ -151,8 +162,35 @@ export function Quiz({ userData, onComplete }: QuizProps) {
       );
 
       onComplete(results);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error submitting quiz:', error);
+      // Log to server so we can trace submit issues in Vercel, including mobile-only problems
+      logClientError({
+        source: 'quiz_submit',
+        message: error?.message ?? 'Unknown error submitting quiz',
+        errorName: error?.name,
+        stack: error?.stack,
+        extra: {
+          userName: userData.name,
+          userCompany: userData.company,
+          hasAuthInstance: (() => {
+            try {
+              const auth = getAuthInstance();
+              return !!auth;
+            } catch {
+              return false;
+            }
+          })(),
+          hasDbInstance: (() => {
+            try {
+              const db = getDbInstance();
+              return !!db;
+            } catch {
+              return false;
+            }
+          })(),
+        },
+      });
       alert('Error submitting quiz. Please try again.');
       setIsSubmitting(false);
     }

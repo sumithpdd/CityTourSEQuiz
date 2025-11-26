@@ -8,6 +8,7 @@ import { Results } from '@/components/Results';
 import { getAuthInstance, getDbInstance } from '@/lib/firebase';
 import { signInAnonymously } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
+import { logClientError } from '@/lib/client-logger';
 
 export default function Home() {
   const [step, setStep] = useState<'form' | 'quiz' | 'results'>('form');
@@ -43,8 +44,35 @@ export default function Home() {
 
       setUserData(data);
       setStep('quiz');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error submitting form:', error);
+      // Log to server to trace onboarding/auth issues
+      logClientError({
+        source: 'form_submit',
+        message: error?.message ?? 'Unknown error submitting form',
+        errorName: error?.name,
+        stack: error?.stack,
+        extra: {
+          name: data.name,
+          company: data.company,
+          hasAuthInstance: (() => {
+            try {
+              const auth = getAuthInstance();
+              return !!auth;
+            } catch {
+              return false;
+            }
+          })(),
+          hasDbInstance: (() => {
+            try {
+              const db = getDbInstance();
+              return !!db;
+            } catch {
+              return false;
+            }
+          })(),
+        },
+      });
       alert('Error submitting form. Please try again.');
     }
   };
