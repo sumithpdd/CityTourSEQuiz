@@ -85,33 +85,22 @@ export function Results({ results, userData }: ResultsProps) {
         We auto-delete every submission after 30 days.
       </p>
 
-      <div style={{ marginTop: '3rem', textAlign: 'left' }}>
-        <h2 style={{ marginBottom: '1rem', color: '#fff' }}>Your Answers</h2>
-        <div className="dashboard-grid">
-          {results.questionResults.map((result, index) => (
-            <div key={index} className="glass-card" style={{ background: result.isCorrect ? 'rgba(29, 209, 161, 0.1)' : 'rgba(248, 80, 50, 0.08)' }}>
-              <p style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#fff' }}>
-                Q{index + 1}. {result.question}
-              </p>
-              <p style={{ color: result.isCorrect ? '#1dd1a1' : '#f85032', marginBottom: '0.25rem', fontWeight: 600 }}>
-                {result.isCorrect ? '✓ Correct' : '✗ Your answer'}: {result.selectedAnswer}
-              </p>
-              {!result.isCorrect && (
-                <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.9rem' }}>
-                  Correct answer: {result.correctAnswer}
-                </p>
-              )}
-            </div>
-          ))}
+      <div style={{ marginTop: '2.5rem', textAlign: 'left', width: '100%' }}>
+        <h2 style={{ marginBottom: '1rem', color: '#fff' }}>Feedback & Follow-up</h2>
+        <div className="glass-card" style={{ marginBottom: '1.25rem', background: 'rgba(255,255,255,0.04)' }}>
+          <p style={{ color: 'rgba(255,255,255,0.85)', marginBottom: '0.75rem', fontWeight: 600 }}>
+            Fast facts from the Sitecore Platform page:
+          </p>
+          <ul style={{ color: 'rgba(255,255,255,0.75)', marginLeft: '1rem', lineHeight: 1.6 }}>
+            <li>XM Cloud delivers the fully managed composable CMS—auto-scaling, continuous updates.</li>
+            <li>Sitecore AI Innovation Lab lets customers co-create and early-test new AI capabilities.</li>
+            <li>OrderCloud, Content Hub, Personalize/CDP, and Experience Edge make up the composable stack.</li>
+          </ul>
         </div>
-      </div>
-
-      <div style={{ marginTop: '3rem', textAlign: 'left', width: '100%' }}>
-        <h2 style={{ marginBottom: '1rem', color: '#fff' }}>Feedback</h2>
         <p style={{ marginBottom: '1rem', color: 'rgba(255,255,255,0.75)' }}>
-          Are you interested in learning more? Any questions we can help with?
+          Interested in deeper dives or have specific questions? Let us know below.
         </p>
-        <form onSubmit={handleFeedbackSubmit} className="glass-card" style={{ background: 'rgba(255,255,255,0.05)' }}>
+        <form onSubmit={handleFeedbackSubmit} className="glass-card" style={{ background: 'rgba(255,255,255,0.07)' }}>
           <div style={{ marginBottom: '1rem' }}>
             <label className="label">Interested in knowing more?</label>
             <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
@@ -147,7 +136,7 @@ export function Results({ results, userData }: ResultsProps) {
               rows={4}
               value={questions}
               onChange={(e) => setQuestions(e.target.value)}
-              placeholder="Let us know what you'd like to learn more about..."
+              placeholder="e.g., “Can you send more on SitecoreAI Pathway or XM Cloud migrations?”"
               style={{ resize: 'vertical' }}
             />
           </div>
@@ -160,6 +149,33 @@ export function Results({ results, userData }: ResultsProps) {
             {isSubmitting ? 'Sending...' : 'Send Feedback'}
           </button>
         </form>
+      </div>
+
+      <div style={{ marginTop: '3rem', textAlign: 'left' }}>
+        <h2 style={{ marginBottom: '1rem', color: '#fff' }}>Your Answers</h2>
+        <div className="dashboard-grid">
+          {results.questionResults.map((result, index) => (
+            <div
+              key={index}
+              className="glass-card"
+              style={{ background: result.isCorrect ? 'rgba(29, 209, 161, 0.1)' : 'rgba(248, 80, 50, 0.08)' }}
+            >
+              <p style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#fff' }}>
+                Q{index + 1}. {result.question}
+              </p>
+              <p
+                style={{ color: result.isCorrect ? '#1dd1a1' : '#f85032', marginBottom: '0.25rem', fontWeight: 600 }}
+              >
+                {result.isCorrect ? '✓ Correct' : '✗ Your answer'}: {result.selectedAnswer}
+              </p>
+              {!result.isCorrect && (
+                <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.9rem' }}>
+                  Correct answer: {result.correctAnswer}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
