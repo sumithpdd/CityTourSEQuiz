@@ -1,5 +1,5 @@
 import { initializeApp, cert } from 'firebase-admin/app';
-import { getFirestore, collection, addDoc, getDocs } from 'firebase-admin/firestore';
+import { getFirestore } from 'firebase-admin/firestore';
 import { initialQuestions, generateIncorrectAnswers } from '../lib/questions';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
@@ -34,13 +34,14 @@ async function seedQuestions() {
   try {
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const questionsRef = db.collection('questions');
 
     console.log('Seeding questions to Firestore...');
 
     // Check if questions already exist
-    const existingQuestions = await getDocs(collection(db, 'questions'));
-    if (!existingQuestions.empty) {
-      console.log(`Found ${existingQuestions.size} existing questions. Skipping seed.`);
+    const existingSnapshot = await questionsRef.get();
+    if (!existingSnapshot.empty) {
+      console.log(`Found ${existingSnapshot.size} existing questions. Skipping seed.`);
       console.log('To re-seed, delete existing questions from Firestore first.');
       process.exit(0);
     }
@@ -53,7 +54,8 @@ async function seedQuestions() {
           ? question.incorrectAnswers
           : generateIncorrectAnswers(question.correctAnswer, question.incorrectAnswers, 3);
 
-      await addDoc(collection(db, 'questions'), {
+      const docRef = questionsRef.doc();
+      await docRef.set({
         ...question,
         incorrectAnswers: enhancedIncorrectAnswers,
         createdAt: new Date().toISOString(),
