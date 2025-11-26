@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Question, getRandomQuestions, shuffleAnswers, initialQuestions, shuffleArray } from '@/lib/questions';
 import { getDbInstance, getAuthInstance } from '@/lib/firebase';
 import { collection, addDoc, doc, setDoc, getDocs } from 'firebase/firestore';
@@ -201,17 +202,20 @@ export function Quiz({ userData, onComplete }: QuizProps) {
         <h2 className="question-text">{currentQuestion.question}</h2>
         {currentQuestion.imageUrl && (
           <div style={{ marginBottom: '1rem', textAlign: 'center' }}>
-            <img
+            <Image
               src={currentQuestion.imageUrl}
               alt="Question image"
+              width={600}
+              height={400}
+              unoptimized
               style={{
                 maxWidth: '100%',
-                maxHeight: '400px',
-                borderRadius: '8px',
+                height: 'auto',
+                borderRadius: '12px',
                 objectFit: 'contain',
+                background: 'rgba(255,255,255,0.04)',
               }}
               onError={(e) => {
-                // Hide image if it fails to load
                 (e.target as HTMLImageElement).style.display = 'none';
               }}
             />

@@ -5,9 +5,9 @@ import Image from 'next/image';
 import { UserForm } from '@/components/UserForm';
 import { Quiz } from '@/components/Quiz';
 import { Results } from '@/components/Results';
-import { auth, db } from '@/lib/firebase';
+import { getAuthInstance, getDbInstance } from '@/lib/firebase';
 import { signInAnonymously } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 
 export default function Home() {
   const [step, setStep] = useState<'form' | 'quiz' | 'results'>('form');
@@ -27,6 +27,8 @@ export default function Home() {
   }) => {
     try {
       // Sign in anonymously
+      const auth = getAuthInstance();
+      const db = getDbInstance();
       const userCredential = await signInAnonymously(auth);
       const user = userCredential.user;
 
