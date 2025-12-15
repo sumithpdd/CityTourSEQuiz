@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Question, getRandomQuestions, shuffleAnswers, initialQuestions, shuffleArray } from '@/lib/questions';
 import { getDbInstance, getAuthInstance } from '@/lib/firebase';
-import { collection, addDoc, doc, setDoc, getDocs } from 'firebase/firestore';
+import { collection, addDoc, doc, setDoc, getDocs, getDoc } from 'firebase/firestore';
 import { logClientError } from '@/lib/client-logger';
+import { Explanation } from './Explanation';
 
 interface QuizProps {
   userData: {
@@ -17,7 +18,7 @@ interface QuizProps {
   onComplete: (results: any) => void;
 }
 
-const QUIZ_QUESTION_COUNT = 5;
+const DEFAULT_QUESTION_COUNT = 60;
 
 export function Quiz({ userData, onComplete }: QuizProps) {
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -25,6 +26,28 @@ export function Quiz({ userData, onComplete }: QuizProps) {
   const [selectedAnswers, setSelectedAnswers] = useState<{ [key: string]: string }>({});
   const [shuffledAnswers, setShuffledAnswers] = useState<{ [key: string]: string[] }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [questionCount, setQuestionCount] = useState(DEFAULT_QUESTION_COUNT);
+  const [showAnswerFeedback, setShowAnswerFeedback] = useState(false);
+
+  useEffect(() => {
+    const loadConfig = async () => {
+      try {
+        const db = getDbInstance();
+        const quizConfigDoc = await getDoc(doc(db, 'config', 'quiz'));
+        if (quizConfigDoc.exists()) {
+          const configData = quizConfigDoc.data();
+          if (configData.questionCount && typeof configData.questionCount === 'number') {
+            setQuestionCount(configData.questionCount);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading config:', error);
+        // Use default if config load fails
+      }
+    };
+
+    loadConfig();
+  }, []);
 
   useEffect(() => {
     const loadQuestions = async () => {
@@ -47,9 +70,9 @@ export function Quiz({ userData, onComplete }: QuizProps) {
           availableQuestions = initialQuestions;
         }
         
-        // Get 3 random questions
+        // Get random questions based on configured count
         const shuffled = shuffleArray([...availableQuestions]);
-        const randomQuestions = shuffled.slice(0, QUIZ_QUESTION_COUNT);
+        const randomQuestions = shuffled.slice(0, questionCount);
         setQuestions(randomQuestions);
 
         // Shuffle answers for each question
@@ -71,7 +94,7 @@ export function Quiz({ userData, onComplete }: QuizProps) {
           },
         });
         // Fallback to local questions on error
-        const randomQuestions = getRandomQuestions(QUIZ_QUESTION_COUNT);
+        const randomQuestions = getRandomQuestions(questionCount);
         setQuestions(randomQuestions);
 
         const shuffled: { [key: string]: string[] } = {};
@@ -82,25 +105,35 @@ export function Quiz({ userData, onComplete }: QuizProps) {
       }
     };
 
-    loadQuestions();
-  }, []);
+    if (questionCount > 0) {
+      loadQuestions();
+    }
+  }, [questionCount]);
 
   const handleAnswerSelect = (questionId: string, answer: string) => {
+    if (showAnswerFeedback) {
+      // Don't allow changing answer after feedback is shown
+      return;
+    }
     setSelectedAnswers({
       ...selectedAnswers,
       [questionId]: answer,
     });
+    // Show feedback immediately when answer is selected
+    setShowAnswerFeedback(true);
   };
 
   const handleNext = () => {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
+      setShowAnswerFeedback(false);
     }
   };
 
   const handlePrevious = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(currentQuestionIndex - 1);
+      setShowAnswerFeedback(false);
     }
   };
 
@@ -127,6 +160,9 @@ export function Quiz({ userData, onComplete }: QuizProps) {
           correctAnswer: q.correctAnswer,
           selectedAnswer: selected || 'No answer',
           isCorrect,
+          explanation: q.explanation,
+          reference: q.reference,
+          competency: q.competency,
         };
       });
 
@@ -216,7 +252,7 @@ export function Quiz({ userData, onComplete }: QuizProps) {
             Ready, {firstName}?
           </h2>
           <p className="meta-sub">
-            5 scenarios on SitecoreAI, XM Cloud, and innovation lab news. Answer what feels right—instinct wins!
+            {questionCount} scenarios on SitecoreAI, XM Cloud, and innovation lab news. Answer what feels right—instinct wins!
           </p>
         </div>
         <div className="glass-card mini-card">
@@ -260,26 +296,57 @@ export function Quiz({ userData, onComplete }: QuizProps) {
           </div>
         )}
         <ul className="answers-list">
-          {currentAnswers.map((answer, index) => (
-            <li key={index} className="answer-item">
-              <button
-                type="button"
-                className={`answer-button ${
-                  selectedAnswer === answer ? 'selected' : ''
-                }`}
-                onClick={() => handleAnswerSelect(currentQuestion.id, answer)}
-              >
-                {answer}
-              </button>
-            </li>
-          ))}
+          {currentAnswers.map((answer, index) => {
+            const isSelected = selectedAnswer === answer;
+            const isCorrect = answer === currentQuestion.correctAnswer;
+            const showCorrectness = showAnswerFeedback && isSelected;
+            
+            return (
+              <li key={index} className="answer-item">
+                <button
+                  type="button"
+                  className={`answer-button ${
+                    showCorrectness 
+                      ? (isCorrect ? 'correct' : 'incorrect')
+                      : isSelected 
+                      ? 'selected' 
+                      : ''
+                  }`}
+                  onClick={() => handleAnswerSelect(currentQuestion.id, answer)}
+                  disabled={showAnswerFeedback}
+                  style={{
+                    cursor: showAnswerFeedback ? 'not-allowed' : 'pointer',
+                    opacity: showAnswerFeedback && !isSelected ? 0.6 : 1,
+                  }}
+                >
+                  {answer}
+                  {showCorrectness && (
+                    <span style={{ marginLeft: '0.5rem', fontSize: '1.2rem' }}>
+                      {isCorrect ? '✓' : '✗'}
+                    </span>
+                  )}
+                </button>
+              </li>
+            );
+          })}
         </ul>
+        
+        {showAnswerFeedback && selectedAnswer && (
+          <Explanation
+            explanation={currentQuestion.explanation}
+            reference={currentQuestion.reference}
+            competency={currentQuestion.competency}
+            isCorrect={selectedAnswer === currentQuestion.correctAnswer}
+            selectedAnswer={selectedAnswer}
+            correctAnswer={currentQuestion.correctAnswer}
+          />
+        )}
       </div>
       <div className="nav-buttons">
         <button
           className="btn btn-secondary"
           onClick={handlePrevious}
-          disabled={currentQuestionIndex === 0}
+          disabled={currentQuestionIndex === 0 || showAnswerFeedback}
         >
           Previous
         </button>
@@ -287,15 +354,15 @@ export function Quiz({ userData, onComplete }: QuizProps) {
           <button
             className="btn"
             onClick={handleNext}
-            disabled={!selectedAnswer}
+            disabled={!showAnswerFeedback}
           >
-            Next
+            Next Question
           </button>
         ) : (
           <button
             className="btn"
             onClick={handleSubmit}
-            disabled={!canSubmit || isSubmitting}
+            disabled={!showAnswerFeedback || isSubmitting}
           >
             {isSubmitting ? 'Submitting...' : 'Submit Quiz'}
           </button>

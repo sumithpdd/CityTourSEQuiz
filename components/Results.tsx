@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { getDbInstance } from '@/lib/firebase';
 import { addDoc, collection } from 'firebase/firestore';
+import { Explanation } from './Explanation';
 
 interface ResultsProps {
   results: {
@@ -15,6 +16,9 @@ interface ResultsProps {
       correctAnswer: string;
       selectedAnswer: string;
       isCorrect: boolean;
+      explanation?: string;
+      reference?: string;
+      competency?: string;
     }>;
   };
   userData: {
@@ -160,6 +164,11 @@ export function Results({ results, userData }: ResultsProps) {
               className="glass-card"
               style={{ background: result.isCorrect ? 'rgba(29, 209, 161, 0.1)' : 'rgba(248, 80, 50, 0.08)' }}
             >
+              {result.competency && (
+                <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  {result.competency}
+                </p>
+              )}
               <p style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#fff' }}>
                 Q{index + 1}. {result.question}
               </p>
@@ -169,10 +178,18 @@ export function Results({ results, userData }: ResultsProps) {
                 {result.isCorrect ? '✓ Correct' : '✗ Your answer'}: {result.selectedAnswer}
               </p>
               {!result.isCorrect && (
-                <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.9rem' }}>
+                <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
                   Correct answer: {result.correctAnswer}
                 </p>
               )}
+              <Explanation
+                explanation={result.explanation}
+                reference={result.reference}
+                competency={result.competency}
+                isCorrect={result.isCorrect}
+                selectedAnswer={result.selectedAnswer}
+                correctAnswer={result.correctAnswer}
+              />
             </div>
           ))}
         </div>

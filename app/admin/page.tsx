@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged, User } from 'firebase/auth';
-import { collection, getDocs, orderBy, query } from 'firebase/firestore';
+import { collection, getDocs, orderBy, query, doc, setDoc, getDoc } from 'firebase/firestore';
 import { getAuthInstance, getDbInstance } from '@/lib/firebase';
 import { adminEmails } from '@/lib/config';
 
@@ -47,6 +47,9 @@ export default function AdminPage() {
   const [responses, setResponses] = useState<QuizResponse[]>([]);
   const [feedback, setFeedback] = useState<FeedbackEntry[]>([]);
   const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
+  const [questionCount, setQuestionCount] = useState<number>(60);
+  const [isSavingConfig, setIsSavingConfig] = useState(false);
+  const [configSaveMessage, setConfigSaveMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const auth = getAuthInstance();
@@ -92,9 +95,42 @@ export default function AdminPage() {
           return { id: doc.id, ...rest };
         })
       );
+
+      // Load configuration
+      const configDoc = await getDoc(doc(db, 'config', 'quiz'));
+      if (configDoc.exists()) {
+        const configData = configDoc.data();
+        if (configData.questionCount && typeof configData.questionCount === 'number') {
+          setQuestionCount(configData.questionCount);
+        }
+      }
     } catch (err) {
       console.error('Error loading admin data', err);
       setError('Unable to load admin data. Please check your permissions.');
+    }
+  };
+
+  const handleSaveConfig = async () => {
+    if (questionCount < 1 || questionCount > 500) {
+      setConfigSaveMessage('Question count must be between 1 and 500');
+      return;
+    }
+
+    setIsSavingConfig(true);
+    setConfigSaveMessage(null);
+    try {
+      const db = getDbInstance();
+      await setDoc(doc(db, 'config', 'quiz'), {
+        questionCount: questionCount,
+        updatedAt: new Date().toISOString(),
+      });
+      setConfigSaveMessage('Configuration saved successfully!');
+      setTimeout(() => setConfigSaveMessage(null), 3000);
+    } catch (err) {
+      console.error('Error saving config', err);
+      setConfigSaveMessage('Failed to save configuration');
+    } finally {
+      setIsSavingConfig(false);
     }
   };
 
@@ -226,6 +262,49 @@ export default function AdminPage() {
             <p className="stat-value">{interestedYes}</p>
           </div>
         </div>
+
+        <section style={{ marginBottom: '2rem' }}>
+          <div className="section-heading">
+            <h2>Quiz Configuration</h2>
+            <span className="pill">Settings</span>
+          </div>
+          <div className="glass-card">
+            <div style={{ marginBottom: '1rem' }}>
+              <label className="label" htmlFor="question-count">
+                Number of Questions per Quiz
+              </label>
+              <input
+                id="question-count"
+                className="input"
+                type="number"
+                min="1"
+                max="500"
+                value={questionCount}
+                onChange={(e) => setQuestionCount(parseInt(e.target.value) || 60)}
+                style={{ maxWidth: '200px', marginTop: '0.5rem' }}
+              />
+              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', marginTop: '0.5rem' }}>
+                Set the number of questions that will be shown in each quiz (1-500)
+              </p>
+            </div>
+            {configSaveMessage && (
+              <p style={{ 
+                color: configSaveMessage.includes('successfully') ? '#1dd1a1' : '#f85032', 
+                marginBottom: '0.5rem',
+                fontSize: '0.9rem'
+              }}>
+                {configSaveMessage}
+              </p>
+            )}
+            <button 
+              className="btn" 
+              onClick={handleSaveConfig}
+              disabled={isSavingConfig}
+            >
+              {isSavingConfig ? 'Saving...' : 'Save Configuration'}
+            </button>
+          </div>
+        </section>
 
         <section style={{ marginBottom: '2rem' }}>
           <div className="section-heading">

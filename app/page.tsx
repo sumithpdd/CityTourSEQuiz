@@ -5,13 +5,14 @@ import Image from 'next/image';
 import { UserForm } from '@/components/UserForm';
 import { Quiz } from '@/components/Quiz';
 import { Results } from '@/components/Results';
+import { FlashCards } from '@/components/FlashCards';
 import { getAuthInstance, getDbInstance } from '@/lib/firebase';
 import { signInAnonymously } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { logClientError } from '@/lib/client-logger';
 
 export default function Home() {
-  const [step, setStep] = useState<'form' | 'quiz' | 'results'>('form');
+  const [step, setStep] = useState<'form' | 'quiz' | 'results' | 'flashcards'>('form');
   const [userData, setUserData] = useState<{
     name: string;
     company: string;
@@ -116,12 +117,21 @@ export default function Home() {
           <div className="hero-flags">
             <div>
               <p className="flag-label">Question pool</p>
-              <p className="flag-value">20+</p>
+              <p className="flag-value">224+</p>
             </div>
             <div>
               <p className="flag-label">Data retention</p>
               <p className="flag-value">30 days</p>
             </div>
+          </div>
+          <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            <button
+              className="btn"
+              onClick={() => setStep('flashcards')}
+              style={{ flex: '1', minWidth: '150px' }}
+            >
+              📚 Study Flashcards
+            </button>
           </div>
         </div>
         <div className="hero-side">
@@ -140,12 +150,39 @@ export default function Home() {
       </div>
 
       <div className="card quiz-shell">
-        {step === 'form' && <UserForm onSubmit={handleFormSubmit} />}
+        {step === 'form' && (
+          <>
+            <UserForm onSubmit={handleFormSubmit} />
+            <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+              <button
+                className="btn btn-secondary"
+                onClick={() => setStep('flashcards')}
+                style={{ width: '100%', maxWidth: '300px' }}
+              >
+                📚 Study with Flashcards
+              </button>
+            </div>
+          </>
+        )}
         {step === 'quiz' && userData && (
           <Quiz userData={userData} onComplete={handleQuizComplete} />
         )}
         {step === 'results' && quizResults && (
           <Results results={quizResults} userData={userData} />
+        )}
+        {step === 'flashcards' && (
+          <div>
+            <div style={{ marginBottom: '1rem', textAlign: 'right' }}>
+              <button
+                className="btn btn-secondary"
+                onClick={() => setStep('form')}
+                style={{ fontSize: '0.9rem', padding: '0.5rem 1rem' }}
+              >
+                ← Back to Quiz
+              </button>
+            </div>
+            <FlashCards />
+          </div>
         )}
       </div>
     </main>
