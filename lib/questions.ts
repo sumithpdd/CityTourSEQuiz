@@ -2977,13 +2977,13 @@ export const initialQuestions: Question[] = [
   {
     id: '235',
     question: 'Which of these options best describes the purpose of the following query to the Experience Edge GraphQL schema?\n\nquery {\n  layout(site: "experienceedge", routePath: "/", language: "en") {\n    item {\n      homeltemPath: path\n      contentRoot: parent {\n        id\n        path\n      }\n    }\n  }\n}',
-    correctAnswer: 'To get the item layout for a URL',
+    correctAnswer: 'To get the root item of a site',
     incorrectAnswers: [
       'To get an item by ID',
-      'To get the root item of a site',
+      'To get the item layout for a URL',
       'To get information about a specific content site',
     ],
-    explanation: 'The query to the Experience Edge GraphQL schema is designed to retrieve the layout information for a specific URL, which in this case is the root path ("/") of a site named "experienceedge". This allows developers to access the Layout Service JSON for the item, which is essential for rendering the page in a headless setup. The Sitecore XM Cloud documentation describes the Experience Edge schema as a read-only GraphQL schema that supports common front-end use cases for headless Sitecore development, including querying an item\'s layout by site and route path. The layout query function takes site, routePath, and language parameters to retrieve the complete layout data (including renderings, placeholders, and component data) needed to render a page. While the query does access the parent item (contentRoot), the primary purpose is to get the layout data for the specified URL, not just to get the root item.',
+    explanation: 'This GraphQL query uses the layout query to retrieve the layout data for the homepage (routePath: "/") of the "experienceedge" site in English. The query fetches the path of the homepage item and then accesses its parent item, which represents the root content item of the site. The query\'s main purpose is to get the root item of a site by accessing the parent of the homepage, not to get an item by ID, fetch layout/rendering data, or retrieve general site information. The contentRoot field specifically accesses the parent item, which is the root item of the site structure.',
     reference: 'https://doc.sitecore.com/sai/en/users/sitecoreai/working-with-code-components.html',
     competency: 'Competency 3: Sitecore APIs & Webhooks',
   },
