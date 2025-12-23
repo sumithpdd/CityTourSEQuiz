@@ -28,6 +28,8 @@ export function Quiz({ userData, onComplete }: QuizProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [questionCount, setQuestionCount] = useState(DEFAULT_QUESTION_COUNT);
   const [showAnswerFeedback, setShowAnswerFeedback] = useState(false);
+  const [flaggedQuestions, setFlaggedQuestions] = useState<Set<string>>(new Set());
+  const [isFlagging, setIsFlagging] = useState(false);
 
   useEffect(() => {
     const loadConfig = async () => {
@@ -136,6 +138,90 @@ export function Quiz({ userData, onComplete }: QuizProps) {
       setShowAnswerFeedback(false);
     }
   };
+
+  const handleFlagQuestion = async (questionId: string) => {
+    if (isFlagging) return;
+    
+    setIsFlagging(true);
+    try {
+      const auth = getAuthInstance();
+      const db = getDbInstance();
+      const user = auth.currentUser;
+      
+      if (!user) {
+        alert('Please sign in to flag questions');
+        return;
+      }
+
+      const currentQuestion = questions.find(q => q.id === questionId);
+      if (!currentQuestion) return;
+
+      // Check if already flagged
+      const isFlagged = flaggedQuestions.has(questionId);
+      
+      if (isFlagged) {
+        // Unflag - remove from Firestore
+        const flaggedRef = collection(db, 'flaggedQuestions');
+        const flaggedSnapshot = await getDocs(flaggedRef);
+        const flaggedDoc = flaggedSnapshot.docs.find(
+          doc => doc.data().questionId === questionId && doc.data().userId === user.uid
+        );
+        
+        if (flaggedDoc) {
+          // Note: Firestore doesn't allow delete from client-side easily, so we'll mark as unflagged
+          // For now, we'll just remove from local state
+          const newFlagged = new Set(flaggedQuestions);
+          newFlagged.delete(questionId);
+          setFlaggedQuestions(newFlagged);
+        }
+      } else {
+        // Flag - add to Firestore
+        await addDoc(collection(db, 'flaggedQuestions'), {
+          questionId: questionId,
+          question: currentQuestion.question,
+          userId: user.uid,
+          userName: userData.name,
+          userCompany: userData.company,
+          userEmail: userData.email || '',
+          flaggedAt: new Date().toISOString(),
+          reason: 'User flagged for review',
+        });
+        
+        const newFlagged = new Set(flaggedQuestions);
+        newFlagged.add(questionId);
+        setFlaggedQuestions(newFlagged);
+      }
+    } catch (error: any) {
+      console.error('Error flagging question:', error);
+      alert('Failed to flag question. Please try again.');
+    } finally {
+      setIsFlagging(false);
+    }
+  };
+
+  useEffect(() => {
+    // Load flagged questions for current user
+    const loadFlaggedQuestions = async () => {
+      try {
+        const auth = getAuthInstance();
+        const user = auth.currentUser;
+        if (!user) return;
+
+        const db = getDbInstance();
+        const flaggedRef = collection(db, 'flaggedQuestions');
+        const flaggedSnapshot = await getDocs(flaggedRef);
+        const userFlagged = flaggedSnapshot.docs
+          .filter(doc => doc.data().userId === user.uid)
+          .map(doc => doc.data().questionId);
+        
+        setFlaggedQuestions(new Set(userFlagged));
+      } catch (error) {
+        console.error('Error loading flagged questions:', error);
+      }
+    };
+
+    loadFlaggedQuestions();
+  }, []);
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
@@ -273,7 +359,46 @@ export function Quiz({ userData, onComplete }: QuizProps) {
         Question {currentQuestionIndex + 1} of {questions.length}
       </div>
       <div className="question-card">
-        <h2 className="question-text">{currentQuestion.question}</h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', marginBottom: '1rem' }}>
+          <h2 className="question-text" style={{ flex: 1, margin: 0 }}>{currentQuestion.question}</h2>
+          <button
+            onClick={() => handleFlagQuestion(currentQuestion.id)}
+            disabled={isFlagging}
+            style={{
+              background: flaggedQuestions.has(currentQuestion.id) 
+                ? 'rgba(248, 80, 50, 0.25)' 
+                : 'rgba(248, 80, 50, 0.15)',
+              border: `1px solid ${flaggedQuestions.has(currentQuestion.id) ? '#f85032' : 'rgba(248, 80, 50, 0.4)'}`,
+              color: flaggedQuestions.has(currentQuestion.id) ? '#f85032' : '#f85032',
+              padding: '0.6rem 1rem',
+              borderRadius: '8px',
+              cursor: isFlagging ? 'not-allowed' : 'pointer',
+              fontSize: '0.9rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              whiteSpace: 'nowrap',
+              transition: 'all 0.2s',
+              opacity: isFlagging ? 0.6 : 1,
+              fontWeight: 500,
+              boxShadow: flaggedQuestions.has(currentQuestion.id) ? '0 0 0 2px rgba(248, 80, 50, 0.3)' : 'none'
+            }}
+            title={flaggedQuestions.has(currentQuestion.id) ? 'Unflag this question' : 'Flag this question for review'}
+            onMouseEnter={(e) => {
+              if (!isFlagging && !flaggedQuestions.has(currentQuestion.id)) {
+                e.currentTarget.style.background = 'rgba(248, 80, 50, 0.2)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isFlagging && !flaggedQuestions.has(currentQuestion.id)) {
+                e.currentTarget.style.background = 'rgba(248, 80, 50, 0.15)';
+              }
+            }}
+          >
+            <span style={{ fontSize: '1.1rem' }}>🚩</span>
+            <span>{flaggedQuestions.has(currentQuestion.id) ? 'Flagged' : 'Flag Question'}</span>
+          </button>
+        </div>
         {currentQuestion.imageUrl && (
           <div style={{ marginBottom: '1rem', textAlign: 'center' }}>
             <Image

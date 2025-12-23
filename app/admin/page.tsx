@@ -37,6 +37,18 @@ interface FeedbackEntry {
   submittedAt: string;
 }
 
+interface FlaggedQuestion {
+  id: string;
+  questionId: string;
+  question: string;
+  userId: string;
+  userName: string;
+  userCompany: string;
+  userEmail: string;
+  flaggedAt: string;
+  reason?: string;
+}
+
 export default function AdminPage() {
   const [authUser, setAuthUser] = useState<User | null>(null);
   const [email, setEmail] = useState('');
@@ -46,6 +58,7 @@ export default function AdminPage() {
   const [users, setUsers] = useState<StoredUser[]>([]);
   const [responses, setResponses] = useState<QuizResponse[]>([]);
   const [feedback, setFeedback] = useState<FeedbackEntry[]>([]);
+  const [flaggedQuestions, setFlaggedQuestions] = useState<FlaggedQuestion[]>([]);
   const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
   const [questionCount, setQuestionCount] = useState<number>(100);
   const [isSavingConfig, setIsSavingConfig] = useState(false);
@@ -71,6 +84,7 @@ export default function AdminPage() {
       const usersSnapshot = await getDocs(query(collection(db, 'users')));
       const responsesSnapshot = await getDocs(query(collection(db, 'quizResponses'), orderBy('completedAt', 'desc')));
       const feedbackSnapshot = await getDocs(query(collection(db, 'feedback'), orderBy('submittedAt', 'desc')));
+      const flaggedSnapshot = await getDocs(query(collection(db, 'flaggedQuestions'), orderBy('flaggedAt', 'desc')));
 
       setUsers(
         usersSnapshot.docs.map((doc) => {
@@ -91,6 +105,14 @@ export default function AdminPage() {
       setFeedback(
         feedbackSnapshot.docs.map((doc) => {
           const data = doc.data() as FeedbackEntry;
+          const { id: _ignored, ...rest } = data;
+          return { id: doc.id, ...rest };
+        })
+      );
+
+      setFlaggedQuestions(
+        flaggedSnapshot.docs.map((doc) => {
+          const data = doc.data() as FlaggedQuestion;
           const { id: _ignored, ...rest } = data;
           return { id: doc.id, ...rest };
         })
@@ -126,9 +148,11 @@ export default function AdminPage() {
       });
       setConfigSaveMessage('Configuration saved successfully!');
       setTimeout(() => setConfigSaveMessage(null), 3000);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error saving config', err);
-      setConfigSaveMessage('Failed to save configuration');
+      const errorMessage = err?.message || 'Unknown error';
+      setConfigSaveMessage(`Failed to save configuration: ${errorMessage}`);
+      console.error('Full error details:', err);
     } finally {
       setIsSavingConfig(false);
     }
@@ -377,6 +401,51 @@ export default function AdminPage() {
                 ))}
               </tbody>
             </table>
+          </div>
+        </section>
+
+        <section style={{ marginBottom: '2rem' }}>
+          <div className="section-heading">
+            <h2>Flagged Questions</h2>
+            <span className="pill" style={{ background: 'rgba(248, 80, 50, 0.2)', color: '#f85032' }}>
+              {flaggedQuestions.length} flagged
+            </span>
+          </div>
+          <div className="glass-card" style={{ overflowX: 'auto' }}>
+            {flaggedQuestions.length === 0 ? (
+              <p style={{ color: 'rgba(255,255,255,0.7)', textAlign: 'center', padding: '2rem' }}>
+                No questions have been flagged yet.
+              </p>
+            ) : (
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Question</th>
+                    <th>Flagged By</th>
+                    <th>Company</th>
+                    <th>Email</th>
+                    <th>Flagged At</th>
+                    <th>Question ID</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {flaggedQuestions.map((flagged) => (
+                    <tr key={flagged.id}>
+                      <td style={{ maxWidth: '400px', wordWrap: 'break-word' }}>
+                        {flagged.question}
+                      </td>
+                      <td>{flagged.userName}</td>
+                      <td>{flagged.userCompany}</td>
+                      <td>{flagged.userEmail || '—'}</td>
+                      <td>{new Date(flagged.flaggedAt).toLocaleString()}</td>
+                      <td style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)' }}>
+                        {flagged.questionId}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         </section>
 

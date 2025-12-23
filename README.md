@@ -95,6 +95,15 @@ service cloud.firestore {
       allow create: if request.auth != null;
       allow read: if isAdmin();
     }
+    match /config/{configId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /flaggedQuestions/{flaggedId} {
+      allow create: if request.auth != null;
+      allow read: if isAdmin();
+      allow update, delete: if isAdmin();
+    }
   }
 }
 ```

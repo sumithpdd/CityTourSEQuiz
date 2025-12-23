@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+
 interface ExplanationProps {
   explanation?: string;
   reference?: string;
@@ -7,6 +9,80 @@ interface ExplanationProps {
   isCorrect?: boolean;
   selectedAnswer?: string;
   correctAnswer?: string;
+}
+
+function CopyLinkButton({ url }: { url: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = url;
+      textArea.style.position = 'fixed';
+      textArea.style.opacity = '0';
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch (fallbackErr) {
+        console.error('Fallback copy failed:', fallbackErr);
+      }
+      document.body.removeChild(textArea);
+    }
+  };
+
+  return (
+    <button
+      onClick={handleCopy}
+      style={{
+        background: copied ? 'rgba(29, 209, 161, 0.25)' : 'rgba(29, 209, 161, 0.15)',
+        border: `1px solid ${copied ? '#1dd1a1' : 'rgba(29, 209, 161, 0.4)'}`,
+        color: copied ? '#1dd1a1' : '#1dd1a1',
+        padding: '0.5rem 0.75rem',
+        borderRadius: '8px',
+        fontSize: '0.9rem',
+        cursor: 'pointer',
+        transition: 'all 0.2s',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.5rem',
+        whiteSpace: 'nowrap',
+        fontWeight: 500,
+        boxShadow: copied ? '0 0 0 2px rgba(29, 209, 161, 0.3)' : 'none'
+      }}
+      title={copied ? 'Copied!' : 'Copy link to clipboard'}
+      onMouseEnter={(e) => {
+        if (!copied) {
+          e.currentTarget.style.background = 'rgba(29, 209, 161, 0.2)';
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!copied) {
+          e.currentTarget.style.background = 'rgba(29, 209, 161, 0.15)';
+        }
+      }}
+    >
+      {copied ? (
+        <>
+          <span style={{ fontSize: '1.1rem' }}>✓</span>
+          <span>Copied!</span>
+        </>
+      ) : (
+        <>
+          <span style={{ fontSize: '1.1rem' }}>📋</span>
+          <span>Copy Link</span>
+        </>
+      )}
+    </button>
+  );
 }
 
 export function Explanation({ explanation, reference, competency, isCorrect, selectedAnswer, correctAnswer }: ExplanationProps) {
@@ -88,23 +164,25 @@ export function Explanation({ explanation, reference, competency, isCorrect, sel
           borderTop: explanation ? '1px solid rgba(255,255,255,0.1)' : 'none',
           marginTop: explanation ? '1rem' : '0'
         }}>
-          <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
-            <strong style={{ color: 'rgba(255,255,255,0.95)', display: 'block', marginBottom: '0.25rem' }}>Reference:</strong>
-            <a
-              href={reference}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ 
-                color: '#1dd1a1', 
-                textDecoration: 'underline',
-                wordBreak: 'break-all',
-                display: 'inline-block',
-                marginTop: '0.25rem'
-              }}
-            >
-              {reference}
-            </a>
-          </p>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+            <strong style={{ color: 'rgba(255,255,255,0.95)', fontSize: '0.9rem' }}>Reference:</strong>
+            <CopyLinkButton url={reference} />
+          </div>
+          <a
+            href={reference}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ 
+              color: '#1dd1a1', 
+              textDecoration: 'underline',
+              wordBreak: 'break-all',
+              display: 'block',
+              fontSize: '0.9rem',
+              lineHeight: 1.5
+            }}
+          >
+            {reference}
+          </a>
         </div>
       )}
     </div>
