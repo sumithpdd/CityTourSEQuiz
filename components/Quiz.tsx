@@ -175,17 +175,20 @@ export function Quiz({ userData, onComplete }: QuizProps) {
           setFlaggedQuestions(newFlagged);
         }
       } else {
-        // Flag - add to Firestore
-        await addDoc(collection(db, 'flaggedQuestions'), {
+        // Flag - add to Firestore (ensure no undefined values)
+        const flagData: any = {
           questionId: questionId,
           question: currentQuestion.question,
           userId: user.uid,
           userName: userData.name,
           userCompany: userData.company,
-          userEmail: userData.email || '',
           flaggedAt: new Date().toISOString(),
           reason: 'User flagged for review',
-        });
+        };
+        if (userData.email) {
+          flagData.userEmail = userData.email;
+        }
+        await addDoc(collection(db, 'flaggedQuestions'), flagData);
         
         const newFlagged = new Set(flaggedQuestions);
         newFlagged.add(questionId);
@@ -256,6 +259,26 @@ export function Quiz({ userData, onComplete }: QuizProps) {
       const totalQuestions = questions.length;
       const percentage = Math.round((score / totalQuestions) * 100);
 
+      // Helper function to remove undefined values (Firestore doesn't accept undefined)
+      const removeUndefined = (obj: any): any => {
+        if (obj === null || obj === undefined) {
+          return null;
+        }
+        if (Array.isArray(obj)) {
+          return obj.map(removeUndefined);
+        }
+        if (typeof obj === 'object') {
+          const cleaned: any = {};
+          for (const key in obj) {
+            if (obj[key] !== undefined) {
+              cleaned[key] = removeUndefined(obj[key]);
+            }
+          }
+          return cleaned;
+        }
+        return obj;
+      };
+
       const results = {
         userId: user.uid,
         userName: userData.name,
@@ -264,22 +287,37 @@ export function Quiz({ userData, onComplete }: QuizProps) {
         score,
         totalQuestions,
         percentage,
-        questionResults,
+        questionResults: questionResults.map(qr => ({
+          questionId: qr.questionId,
+          question: qr.question,
+          correctAnswer: qr.correctAnswer,
+          selectedAnswer: qr.selectedAnswer,
+          isCorrect: qr.isCorrect,
+          explanation: qr.explanation || null,
+          reference: qr.reference || null,
+          competency: qr.competency || null,
+        })),
         completedAt: new Date().toISOString(),
       };
 
-      // Save to Firestore
-      await addDoc(collection(db, 'quizResponses'), results);
+      // Save to Firestore (remove any remaining undefined values)
+      await addDoc(collection(db, 'quizResponses'), removeUndefined(results));
 
-      // Also save to user's document
+      // Also save to user's document (ensure no undefined values)
+      const userUpdate: any = {
+        name: userData.name,
+        company: userData.company,
+        consentAccepted: userData.consent,
+        lastQuizCompleted: new Date().toISOString(),
+        lastScore: score,
+        lastTotalQuestions: totalQuestions,
+      };
+      if (userData.email) {
+        userUpdate.email = userData.email;
+      }
       await setDoc(
         doc(db, 'users', user.uid),
-        {
-          ...userData,
-          lastQuizCompleted: new Date().toISOString(),
-          lastScore: score,
-          lastTotalQuestions: totalQuestions,
-        },
+        removeUndefined(userUpdate),
         { merge: true }
       );
 
