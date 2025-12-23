@@ -47,7 +47,7 @@ export default function AdminPage() {
   const [responses, setResponses] = useState<QuizResponse[]>([]);
   const [feedback, setFeedback] = useState<FeedbackEntry[]>([]);
   const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
-  const [questionCount, setQuestionCount] = useState<number>(60);
+  const [questionCount, setQuestionCount] = useState<number>(100);
   const [isSavingConfig, setIsSavingConfig] = useState(false);
   const [configSaveMessage, setConfigSaveMessage] = useState<string | null>(null);
 

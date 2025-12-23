@@ -18,7 +18,7 @@ interface QuizProps {
   onComplete: (results: any) => void;
 }
 
-const DEFAULT_QUESTION_COUNT = 60;
+const DEFAULT_QUESTION_COUNT = 100;
 
 export function Quiz({ userData, onComplete }: QuizProps) {
   const [questions, setQuestions] = useState<Question[]>([]);
