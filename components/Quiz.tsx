@@ -14,6 +14,7 @@ interface QuizProps {
     company: string;
     email?: string;
     consent: boolean;
+    useAllQuestions?: boolean;
   };
   onComplete: (results: any) => void;
 }
@@ -72,9 +73,11 @@ export function Quiz({ userData, onComplete }: QuizProps) {
           availableQuestions = initialQuestions;
         }
         
-        // Get random questions based on configured count
+        // Get random questions based on configured count or use all questions
         const shuffled = shuffleArray([...availableQuestions]);
-        const randomQuestions = shuffled.slice(0, questionCount);
+        const randomQuestions = userData.useAllQuestions 
+          ? shuffled 
+          : shuffled.slice(0, questionCount);
         setQuestions(randomQuestions);
 
         // Shuffle answers for each question
@@ -96,21 +99,23 @@ export function Quiz({ userData, onComplete }: QuizProps) {
           },
         });
         // Fallback to local questions on error
-        const randomQuestions = getRandomQuestions(questionCount);
-        setQuestions(randomQuestions);
+        const fallbackQuestions = userData.useAllQuestions 
+          ? initialQuestions 
+          : getRandomQuestions(questionCount);
+        setQuestions(fallbackQuestions);
 
         const shuffled: { [key: string]: string[] } = {};
-        randomQuestions.forEach((q) => {
+        fallbackQuestions.forEach((q) => {
           shuffled[q.id] = shuffleAnswers(q);
         });
         setShuffledAnswers(shuffled);
       }
     };
 
-    if (questionCount > 0) {
+    if (questionCount > 0 || userData.useAllQuestions) {
       loadQuestions();
     }
-  }, [questionCount]);
+  }, [questionCount, userData.useAllQuestions]);
 
   const handleAnswerSelect = (questionId: string, answer: string) => {
     if (showAnswerFeedback) {
@@ -376,7 +381,7 @@ export function Quiz({ userData, onComplete }: QuizProps) {
             Ready, {firstName}?
           </h2>
           <p className="meta-sub">
-            {questionCount} scenarios on SitecoreAI, XM Cloud, and innovation lab news. Answer what feels right—instinct wins!
+            {userData.useAllQuestions ? questions.length : questionCount} scenarios on SitecoreAI, XM Cloud, and innovation lab news. Answer what feels right—instinct wins!
           </p>
         </div>
         <div className="glass-card mini-card">

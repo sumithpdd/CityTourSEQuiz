@@ -3,7 +3,7 @@
 import { useState } from 'react';
 
 interface UserFormProps {
-  onSubmit: (data: { name: string; company: string; email?: string; consent: boolean }) => void;
+  onSubmit: (data: { name: string; company: string; email?: string; consent: boolean; useAllQuestions?: boolean }) => void;
 }
 
 export function UserForm({ onSubmit }: UserFormProps) {
@@ -11,6 +11,7 @@ export function UserForm({ onSubmit }: UserFormProps) {
   const [company, setCompany] = useState('');
   const [email, setEmail] = useState('');
   const [consent, setConsent] = useState(false);
+  const [useAllQuestions, setUseAllQuestions] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,6 +21,7 @@ export function UserForm({ onSubmit }: UserFormProps) {
         company: company.trim(),
         email: email.trim() || undefined,
         consent,
+        useAllQuestions,
       });
     }
   };
@@ -88,6 +90,19 @@ export function UserForm({ onSubmit }: UserFormProps) {
             />
             <span>
               I understand this quiz is for fun, my data will only be stored for up to 30 days, and it will never be used for marketing purposes.
+            </span>
+          </label>
+        </div>
+        <div className="glass-card" style={{ marginTop: '1rem', background: 'rgba(255,255,255,0.05)' }}>
+          <label style={{ display: 'flex', gap: '0.75rem', fontSize: '0.9rem', color: 'rgba(255,255,255,0.9)' }}>
+            <input
+              type="checkbox"
+              checked={useAllQuestions}
+              onChange={(e) => setUseAllQuestions(e.target.checked)}
+              style={{ marginTop: '0.2rem' }}
+            />
+            <span>
+              Answer all available questions (instead of a random subset)
             </span>
           </label>
         </div>

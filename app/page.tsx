@@ -18,6 +18,7 @@ export default function Home() {
     company: string;
     email?: string;
     consent: boolean;
+    useAllQuestions?: boolean;
   } | null>(null);
   const [quizResults, setQuizResults] = useState<any>(null);
 
@@ -26,6 +27,7 @@ export default function Home() {
     company: string;
     email?: string;
     consent: boolean;
+    useAllQuestions?: boolean;
   }) => {
     try {
       // Sign in anonymously
