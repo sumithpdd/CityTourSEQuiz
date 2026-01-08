@@ -3484,6 +3484,123 @@ export const initialQuestions: Question[] = [
     reference: 'https://doc.sitecore.com/sai/en/developers/sitecoreai/deploying-sitecoreai.html',
     competency: 'Competency 2: Deployment of SitecoreAI Projects',
   },
+  {
+    id: '274',
+    question: 'What should you always do before publishing AI-generated content?',
+    correctAnswer: 'Review for accuracy',
+    incorrectAnswers: [
+      'Make cosmetic edits only',
+      'Trust the AI output as-is',
+      'Publish immediately',
+    ],
+    explanation: 'Always review and validate AI-generated content before publishing to ensure quality and compliance.',
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '275',
+    question: 'What is the primary benefit of SitecoreAI compared to previous Sitecore products?',
+    correctAnswer: 'Unified, scalable foundation',
+    incorrectAnswers: [
+      'Disconnected tools',
+      'Limited customization',
+      'More manual workflows',
+    ],
+    explanation: 'This is correct! SitecoreAI replaces disconnected tools with a unified, scalable foundation, making work faster and more efficient.',
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '276',
+    question: 'Which roles can benefit from using SitecoreAI?',
+    correctAnswer: 'Developers, Marketers, Content Authors, and Designers',
+    incorrectAnswers: [
+      'Only Developers and Marketers',
+      'Only Content Authors and Designers',
+      'Only technical roles',
+    ],
+    explanation: 'SitecoreAI is designed for Strategists, Marketers, Content Authors, Designers and Developers.',
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '277',
+    question: 'Which type of AI in SitecoreAI automates multi-step marketing tasks while keeping humans in control?',
+    correctAnswer: 'Agentic AI',
+    incorrectAnswers: [
+      'Generative AI',
+      'Visual AI',
+      'Predictive AI',
+    ],
+    explanation: 'It is correct. Agentic AI automates complex tasks but always keeps humans in the loop for oversight.',
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '278',
+    question: 'In the context of SitecoreAI, which scenario best illustrates the use of both assistants and agents within a marketing workflow?',
+    correctAnswer: 'An assistant drafts a campaign brief, and an agent coordinates translation and multi-channel publishing',
+    incorrectAnswers: [
+      'Only agents are used for content creation and publishing',
+      'An assistant manages all campaign steps without agent involvement',
+    ],
+    explanation: 'Assistants are ideal for quick creative tasks like drafting, while agents automate and coordinate complex, multi-step processes such as translation and publishing.',
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '279',
+    question: 'What is a key feature of Agentic Studio?',
+    correctAnswer: 'Automating multi-step workflows with agents and flows',
+    incorrectAnswers: [
+      'Editing user profiles',
+      'Managing billing',
+      'Manual content upload',
+    ],
+    explanation: 'Agentic Studio is designed for automating complex workflows using agents and flows.',
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '280',
+    question: 'Which of the following is a core capability of SitecoreAI?',
+    correctAnswer: 'Content Management System',
+    incorrectAnswers: [
+      'Spreadsheet Management',
+      'Social Media Scheduling',
+      'Manual Data Entry',
+    ],
+    explanation: 'Content Management System (CMS) is one of the six core capabilities of SitecoreAI. The others include Digital Asset Management, Content Operations, Audiences & Intelligence, Conversion Optimization, and Commerce.',
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '281',
+    question: 'True or False: Flows in Agentic Studio are used to automate multi-step marketing processes in SitecoreAI.',
+    correctAnswer: 'True',
+    incorrectAnswers: [
+      'False',
+    ],
+    explanation: 'Correct! Flows in Agentic Studio connect agents and tasks to automate complex, multi-step marketing workflows.',
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '282',
+    question: 'Which of the following are best practices when using AI in SitecoreAI?',
+    correctAnswer: 'Treat AI outputs as drafts, cross-check against authoritative sources, and document where AI was used',
+    incorrectAnswers: [
+      'Publish high-impact content without review',
+      'Trust AI outputs completely without verification',
+      'Use AI only for low-priority content',
+    ],
+    explanation: 'Correct. Always treat AI outputs as drafts, cross-check with reliable sources, and document AI use. Never publish high-impact content without review.',
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '283',
+    question: 'Which tasks can be automated using agents and flows in Agentic Studio?',
+    correctAnswer: 'Translation, multi-channel content production, and running ABM campaign workflows',
+    incorrectAnswers: [
+      'Designing company logos',
+      'Manual data entry',
+      'Only translation tasks',
+    ],
+    explanation: 'Correct. Agents and flows can automate multi-channel content production, translation, and ABM campaigns, but not manual data entry.',
+    competency: 'SitecoreAI',
+  },
 ];
 
 export function shuffleArray<T>(array: T[]): T[] {

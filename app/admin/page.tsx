@@ -133,7 +133,8 @@ export default function AdminPage() {
   };
 
   const handleSaveConfig = async () => {
-    if (questionCount < 1 || questionCount > 500) {
+    const numQuestions = Number(questionCount);
+    if (isNaN(numQuestions) || numQuestions < 1 || numQuestions > 500) {
       setConfigSaveMessage('Question count must be between 1 and 500');
       return;
     }
@@ -142,17 +143,35 @@ export default function AdminPage() {
     setConfigSaveMessage(null);
     try {
       const db = getDbInstance();
-      await setDoc(doc(db, 'config', 'quiz'), {
-        questionCount: questionCount,
+      const configData = {
+        questionCount: numQuestions,
         updatedAt: new Date().toISOString(),
-      });
+      };
+      
+      console.log('Attempting to save config:', configData);
+      await setDoc(doc(db, 'config', 'quiz'), configData);
       setConfigSaveMessage('Configuration saved successfully!');
       setTimeout(() => setConfigSaveMessage(null), 3000);
     } catch (err: any) {
       console.error('Error saving config', err);
-      const errorMessage = err?.message || 'Unknown error';
+      let errorMessage = 'Unknown error';
+      
+      if (err?.code) {
+        errorMessage = `Firestore error (${err.code}): ${err.message || 'Permission denied or network error'}`;
+        if (err.code === 'permission-denied') {
+          errorMessage += '. Please check that your account has admin permissions in Firestore security rules.';
+        }
+      } else if (err?.message) {
+        errorMessage = err.message;
+      }
+      
       setConfigSaveMessage(`Failed to save configuration: ${errorMessage}`);
-      console.error('Full error details:', err);
+      console.error('Full error details:', {
+        code: err?.code,
+        message: err?.message,
+        stack: err?.stack,
+        name: err?.name,
+      });
     } finally {
       setIsSavingConfig(false);
     }
@@ -304,7 +323,14 @@ export default function AdminPage() {
                 min="1"
                 max="500"
                 value={questionCount}
-                onChange={(e) => setQuestionCount(parseInt(e.target.value) || 60)}
+                onChange={(e) => {
+                  const value = parseInt(e.target.value);
+                  if (!isNaN(value) && value >= 1 && value <= 500) {
+                    setQuestionCount(value);
+                  } else if (e.target.value === '') {
+                    setQuestionCount(100);
+                  }
+                }}
                 style={{ maxWidth: '200px', marginTop: '0.5rem' }}
               />
               <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', marginTop: '0.5rem' }}>
