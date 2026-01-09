@@ -1,12 +1,13 @@
 export interface Question {
   id: string;
   question: string;
-  correctAnswer: string;
+  correctAnswer: string | string[]; // Support both single and multiple correct answers
   incorrectAnswers: string[];
   imageUrl?: string;
   explanation?: string;
   reference?: string;
   competency?: string;
+  isMultiSelect?: boolean; // Flag to indicate if question allows multiple selections
 }
 
 export const initialQuestions: Question[] = [
@@ -3601,6 +3602,550 @@ export const initialQuestions: Question[] = [
     explanation: 'Correct. Agents and flows can automate multi-channel content production, translation, and ABM campaigns, but not manual data entry.',
     competency: 'SitecoreAI',
   },
+  {
+    id: '284',
+    question: 'Which component of the SitecoreAI CMS architecture is responsible for delivering content to website visitors?',
+    correctAnswer: 'Experience Edge',
+    incorrectAnswers: [
+      'Editing Host',
+      'Sitecore Cloud Portal',
+      'Content Management (CM) instance',
+    ],
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '285',
+    question: 'Which statement best describes the relationship between sites and site collections in SitecoreAI CMS?',
+    correctAnswer: 'Every site must reside within a site collection, and a site collection can contain multiple sites',
+    incorrectAnswers: [
+      'Sites and site collections are independent entities with no direct relationship',
+      'Site collections are used for content authoring, while sites are used for content delivery',
+      'A site collection must contain only one site, and multiple site collections can be grouped within a site',
+    ],
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '286',
+    question: 'What is the purpose of an "Environment" in the SitecoreAI deployment structure?',
+    correctAnswer: 'To provide an isolated instance for development, testing, or production',
+    incorrectAnswers: [
+      'To manage subscriptions, user access, and roles across multiple Sitecore products',
+      'To deliver website content to visitors with optimal performance',
+      'To group related sites for content sharing and template consistency',
+    ],
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '287',
+    question: 'A marketing team needs to share content between two related websites within their SitecoreAI CMS instance. How can this be achieved most efficiently?',
+    correctAnswer: 'Place both websites within the same site collection to enable content sharing features',
+    incorrectAnswers: [
+      'Use different rendering hosts for each website and rely on external content synchronization tools',
+      'Create separate site collections for each website and manually copy content between them',
+      'Store the shared content in a separate headless CMS and access it through APIs from both websites',
+    ],
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '288',
+    question: 'Which of the following is a key advantage of SitecoreAI\'s SaaS architecture?',
+    correctAnswer: 'It provides scalability and flexibility, allowing resources to be adjusted based on demand',
+    incorrectAnswers: [
+      'It requires developers to manage server infrastructure and software updates',
+      'It increases the complexity of deployment and maintenance processes',
+      'It limits content delivery to a single channel or device type',
+    ],
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '289',
+    question: 'Which of the following tools or resources is the primary source of information for troubleshooting deployment issues in SitecoreAI CMS?',
+    correctAnswer: 'SitecoreAI Deploy App deployment logs',
+    incorrectAnswers: [
+      'Sitecore Cloud Portal status log',
+      'Browser developer console and network tools',
+      'Sitecore Cloud CLI commands and output',
+    ],
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '290',
+    question: 'What is the main function of the Rendering Host in SitecoreAI CMS?',
+    correctAnswer: 'To retrieve content from Experience Edge and display the website to visitors',
+    incorrectAnswers: [
+      'To manage user access and permissions within an organization',
+      'To store and manage content items and templates',
+      'To deploy code and configurations to different environments',
+    ],
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '291',
+    question: 'What is the primary benefit of using a headless CMS architecture in SitecoreAI?',
+    correctAnswer: 'Content can be delivered to any channel or device through APIs, providing flexibility and future-proofing',
+    incorrectAnswers: [
+      'It reduces the need for developers by automating content delivery processes',
+      'It eliminates the need for a rendering host, simplifying the deployment process',
+      'It simplifies content authoring by providing a traditional page-based editing interface',
+    ],
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '292',
+    question: 'A developer needs to create a new project in SitecoreAI. Which tool will accomplish this task?',
+    correctAnswer: ['Sitecore Cloud CLI', 'SitecoreAI Deploy app', 'Deploy REST API'],
+    incorrectAnswers: [
+      'Experience Edge',
+      'Sitecore Cloud Portal',
+    ],
+    isMultiSelect: true,
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '293',
+    question: 'When a developer deploys an SitecoreAI project to a new environment using the starter kit, which of the following components are provisioned within the Sitecore-managed infrastructure?',
+    correctAnswer: ['Databases', 'Content management instance', 'Indexes', 'Rendering host'],
+    incorrectAnswers: [
+      'The developer\'s local development environment',
+      'Experience Edge tenant',
+      'The Sitecore Cloud Portal',
+    ],
+    isMultiSelect: true,
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '294',
+    question: 'Which tool allows you to connect to a GitHub source control repository and set up automatic deployments in SitecoreAI CMS?',
+    correctAnswer: 'SitecoreAI Deploy app',
+    incorrectAnswers: [
+      'SitecoreAI CMS Portal',
+      'Sitecore Control Panel',
+    ],
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '295',
+    question: 'Which tool lets you use commands to automate SitecoreAI CMS deployment?',
+    correctAnswer: 'Sitecore CLI SitecoreAI CMS Plugin',
+    incorrectAnswers: [
+      'SitecoreAI Delivery API',
+      'SitecoreAI Deploy app',
+    ],
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '296',
+    question: 'Which of the following best describes the primary advantage of using the SitecoreAI CMS Foundation template/starter kit when initiating a new SitecoreAI CMS project?',
+    correctAnswer: 'It provides a pre-configured basic structure and essential components to accelerate the initial development process',
+    incorrectAnswers: [
+      'It automatically deploys a fully functional website to production environments.',
+      'It completely eliminates the need for developers to write any custom code for the project.',
+    ],
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '297',
+    question: 'Which of the following stages of the deployment process is typically recorded within the Deployment Log?',
+    correctAnswer: ['Provisioning', 'Build', 'Post actions', 'Deployment'],
+    incorrectAnswers: [
+      'Publishing',
+    ],
+    isMultiSelect: true,
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '298',
+    question: 'Which of the following source control providers are supported by the Deploy app?',
+    correctAnswer: ['Azure DevOps', 'GitHub'],
+    incorrectAnswers: [
+      'GitLab',
+      'BitBucket',
+    ],
+    isMultiSelect: true,
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '299',
+    question: 'What is the first step you must take before deleting a project in the Sitecore portal?',
+    correctAnswer: 'Delete all environments associated with the project',
+    incorrectAnswers: [
+      'Archive the project',
+      'Transfer ownership of the project to another user',
+    ],
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '300',
+    question: 'Which file is typically used to store local-only environment settings for connecting to a remote SitecoreAI CMS CM?',
+    correctAnswer: '.env.local',
+    incorrectAnswers: [
+      '.env',
+      'config.js',
+    ],
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '301',
+    question: 'What is the primary purpose of running "npm run start:connected"?',
+    correctAnswer: 'To run the local head app and to fetch data from a remote CM',
+    incorrectAnswers: [
+      'To build the front-end application for production',
+      'To deploy the front-end application to SitecoreAI CMS',
+    ],
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '302',
+    question: 'What is the primary purpose of setting the SITECORE_EDGE_CONTEXT_ID environment variable when connecting to the SitecoreAI CMS Edge endpoint?',
+    correctAnswer: 'To specify the API key to Preview or Live content',
+    incorrectAnswers: [
+      'To specify which version of the front-end code to use',
+      'Transfer ownership of the project to another user.',
+    ],
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '303',
+    question: 'A new team member is invited to the Sitecore Cloud Portal. They primarily function as a developer, managing environments and deploying code within a specific project (requiring an App Role). However, they also need to be able to manage other members within the organization and assign App Roles to them. Which role would be most appropriate?',
+    correctAnswer: 'The "Organization Admin" role',
+    incorrectAnswers: [
+      'The "Project Administrator" app role',
+      'The "Developer" app role within their project',
+      'The "Organization Owner" role',
+    ],
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '304',
+    question: 'A seasonal promotion page is no longer valid after December 31st. The marketing team needs to remove this page from the live website immediately after the promotion ends. What is the most direct way to achieve this using SitecoreAI CMS publishing features?',
+    correctAnswer: 'Use \'Unpublish\' or set a publishing end date',
+    incorrectAnswers: [
+      'Delete the full page item from the Content Editor',
+      'Remove the page\'s file entry from the web server',
+      'Simply set the page\'s workflow state to "Draft"',
+    ],
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '305',
+    question: 'A development team needs to ensure that all pages created from a specific Article Page template consistently use a predefined layout structure with specific placeholders (e.g., "main", "sidebar", "comments"). What Sitecore SXA design concept is best suited to define and enforce this overall page layout?',
+    correctAnswer: 'A Page Design',
+    incorrectAnswers: [
+      'A Layout Rendering',
+      'A Partial Design',
+      'A Standard Rendering',
+    ],
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '306',
+    question: 'If you want content authors to find and select content for a specific component (e.g., a "Hero" component) only from a particular folder in the content tree (e.g., "/sitecore/content/MySite/Data/Heroes"), which field on the component\'s "Rendering Definition Item" should you configure?',
+    correctAnswer: 'The "Datasource Location" field',
+    incorrectAnswers: [
+      'The "Component Name" field',
+      'The "Datasource Template" field',
+      'The "Data source" field',
+    ],
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '307',
+    question: 'After making several structural and content changes to a page in the SitecoreAI CMS Page builder, a content author needs to ensure these updates are visible to public website visitors. What are the essential final steps to make these changes live?',
+    correctAnswer: 'Initiating a "Publish" action for the page',
+    incorrectAnswers: [
+      'Just closing the browser tab, as changes are automatically live',
+      'Only saving the page in the Page builder, which automatically publishes it',
+      'Exporting the page to an XML file and deploying it manually',
+    ],
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '308',
+    question: 'A Content Section component has a placeholder (<Placeholder name="section-content" rendering={props.rendering} />) within it. A content author wants to add a RichText component into this placeholder. Can JSS field helpers like RichText be successfully used for components placed within a "Placeholder"?',
+    correctAnswer: 'Yes, any JSS component, including those that use field helpers, can be added to and rendered within a "Placeholder"',
+    incorrectAnswers: [
+      'No, field helpers can only be used on the root component directly and not inside nested placeholders',
+      'Only if the "Placeholder" explicitly specifies the field helper in its configuration',
+      'Yes, but they will lose Experience Editor editing capabilities when nested in a "Placeholder"',
+    ],
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '309',
+    question: 'When modeling fields that contain content potentially varying by language (e.g., Product Description) versus fields that are always the same across all language versions (e.g., Product SKU), what is the critical content modeling consideration?',
+    correctAnswer: 'The Is Shared property: fields like Product SKU should be marked as shared while Product Description should be unversioned (or versioned for per-version content)',
+    incorrectAnswers: [
+      'Using a Single-Line Text field for multilingual content and a Rich Text field for single-language content',
+      'Creating separate templates for each language variant of a product item',
+      'The Is Workflow Enabled property: only fields that vary by language should have workflows applied',
+    ],
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '310',
+    question: 'A developer is setting up Sitecore Content Serialization for a new project. They need to define which specific Sitecore trees (e.g., /sitecore/templates/demo, /sitecore/layout/renderings/demo) should be included or excluded from serialization. What is the main configuration file used to specify these serialization rules?',
+    correctAnswer: 'sitecore.json file',
+    incorrectAnswers: [
+      '.module.json file',
+      'config.json file',
+      'package.json file',
+    ],
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '311',
+    question: 'A CI/CD pipeline is configured to deploy serialized Sitecore items to a QA SitecoreAI CMS instance. The pipeline\'s build artifact contains the .itempackage. Which command sequence would correctly apply this package to the remote QA instance?',
+    correctAnswer: '"dotnet sitecore ser pkg install -n qa"',
+    incorrectAnswers: [
+      '"dotnet sitecore ser pull -n qa"',
+      '"dotnet sitecore publish -n qa"',
+      '"dotnet sitecore ser push -n qa"',
+    ],
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '312',
+    question: 'What are the three fundamental components that define a SitecoreAI CMS workflow?',
+    correctAnswer: ['Commands', 'Actions', 'States'],
+    incorrectAnswers: [
+      'Rules Engines',
+    ],
+    isMultiSelect: true,
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '313',
+    question: 'Which of the following statements are TRUE regarding the data returned by Experience Edge APIs?',
+    correctAnswer: [
+      'Experience Edge publishes a static snapshot of the Layout Service output at the time of publishing',
+      'Changes to rendering configurations or Layout Service extensions require republishing affected items to reflect on Edge',
+    ],
+    incorrectAnswers: [
+      'Templates are stored as items and can be directly fetched using an item query',
+      'Contextual or dynamic output from the Layout Service (based on user, query strings, etc.) is fully supported',
+    ],
+    isMultiSelect: true,
+    competency: 'SitecoreAI',
+    reference: 'https://doc.sitecore.com/sai/en/developers/sitecoreai/limitations-and-restrictions-of-experience-edge.html',
+  },
+  {
+    id: '314',
+    question: 'What is a key difference between Preview and Delivery GraphQL endpoints in Sitecore Experience Edge?',
+    correctAnswer: 'Preview endpoints access content in its current state (drafts), while Delivery endpoints access published content.',
+    incorrectAnswers: [
+      'Preview endpoints are read-only, while Delivery endpoints allow mutations',
+      'Preview endpoints are used for production, while Delivery endpoints are for staging',
+      'Preview endpoints require no authentication, while Delivery endpoints require API tokens',
+    ],
+    competency: 'SitecoreAI',
+    reference: 'https://doc.sitecore.com/sai/en/developers/sitecoreai/the-architecture-of-experience-edge.html#the-sitecore-cli-experience-edge-plugin',
+  },
+  {
+    id: '315',
+    question: 'What is the primary purpose of Standard Values for a template in SitecoreAI CMS content modeling?',
+    correctAnswer: 'To define the default values for fields, insert options, default presentation and workflow settings for new items created from that template',
+    incorrectAnswers: [
+      'To store the version history of all items created from the template',
+      'To mark a template as standard and prevent it from being modified',
+      'To prevent a template from being inherited by other templates',
+    ],
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '316',
+    question: 'What is the primary architectural role of Rendering Parameters in enabling content authors to influence front-end component behavior in SitecoreAI CMS?',
+    correctAnswer: 'They enable authors to customize the visual presentation or functional configuration of a front-end component, independently from its core content data or developer code',
+    incorrectAnswers: [
+      'They provide default content for a component\'s fields, acting as a fallback when the primary data source is unpopulated',
+      'They allow content authors to inject arbitrary HTML, CSS, or JavaScript code directly into the component\'s rendered output',
+      'They specify the required data template that a rendering must use to ensure data structure consistency across all component instances',
+    ],
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '317',
+    question: 'A developer defines a new include rule for content serialization. They do not explicitly set the allowedPushOperations property within this include. What is the default behavior for push operations for items managed by this include rule when synchronizing with a remote SitecoreAI CMS instance, assuming the module allows pushes to the target environment?',
+    correctAnswer: 'Creation, updates, and deletions are all allowed',
+    incorrectAnswers: [
+      'Only updates to existing items are permitted remotely',
+      'Only new items can be created on the remote instance',
+      'No push operations are allowed by default for this include',
+    ],
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '318',
+    question: 'A digital agency is building a website that requires a Newsletter Signup form section to appear consistently on the bottom of all Blog Post pages AND on specific Service Detail pages. This section includes the form component and its related content. What is the most efficient approach to manage and apply this Newsletter Signup section to multiple page types?',
+    correctAnswer: 'Define the Newsletter Signup section as a Partial Design, and then include this Partial Design within the respective Page Designs for Blog Post and Service Detail pages',
+    incorrectAnswers: [
+      'Duplicate the Newsletter Signup components directly onto each Blog Post and Service Detail page',
+      'Create a Newsletter Signup Page Design and assign it to both page templates',
+      'Use a global rendering and apply it to a shared placeholder on every page manually',
+    ],
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '319',
+    question: 'When querying content from Experience Edge using GraphQL, what is the typical method for obtaining more than the default number of entities (e.g., more than 1000 items in a single query)?',
+    correctAnswer: 'Utilize pagination features like "first", "after", and "endCursor" in the query',
+    incorrectAnswers: [
+      'Make multiple independent queries for smaller batches of items',
+      'Modify the Experience Edge configuration settings in Sitecore CM to increase the limit',
+      'Increase the "maxItems" parameter in the GraphQL query to a higher value',
+    ],
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '320',
+    question: 'A developer has created a new Product Detail component that requires a product item as its data source. When a content author drags this component onto a page in the Page builder without assigning a data source, the component currently appears as a blank space, confusing the author. Which of the following should the developer wrap around the component to provide a clear, user-friendly message and prompt for a data source in the Page builder?',
+    correctAnswer: 'withDatasourceCheck()',
+    incorrectAnswers: [
+      'withComponentFactory()',
+      'withPlaceholder()',
+      'withSitecoreContext()',
+    ],
+    explanation: 'This component is specifically designed to render content from a data source item. Crucially, it will utilize the withDatasourceCheck HOC from Sitecore JSS. This HOC automatically handles the common scenario where a component requires a data source to function correctly, displaying a user-friendly message in the Page builder if no data source is assigned.',
+    reference: 'https://github.com/Sitecore/jss/blob/release/22.0.0/ref-docs/sitecore-jss-nextjs/index/functions/withDatasourceCheck.md',
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '321',
+    question: 'An item is currently in the Awaiting Approval workflow state. Which of the following is TRUE regarding its publishing status and further actions?',
+    correctAnswer: 'The item is locked for editing by all users until it leaves this state',
+    incorrectAnswers: [
+      'Only users with Admin roles can move the item to the next state.',
+      'The item is not publishable by default, and can only be moved to another state via explicitly configured workflow commands.',
+      'The item is automatically published to Experience Edge, as Awaiting Approval implies readiness',
+    ],
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '322',
+    question: 'The development team needs to manage different API endpoints for development, staging, and production environments. What is the best approach for handling environment-specific configurations?',
+    correctAnswer: 'Use environment variables managed through .env files, hosting provider settings, and SitecoreAI Deploy app with proper secret management',
+    incorrectAnswers: [
+      'Manually update configuration files before each deployment to ensure proper environment settings',
+      'Hard-code all API endpoints directly in the application source code for simplicity and consistency',
+      'Store all configuration data in a shared database that is accessible by all environments',
+    ],
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '323',
+    question: 'In an SitecoreAI CMS setup, a content editor has finished a new page, but it\'s a critical business requirement that only approved content strategists can publish this content to Experience Edge. What Sitecore security feature is designed to enforce this multi-step approval process before content goes live?',
+    correctAnswer: 'Implementing a custom content publishing workflow with approval states',
+    incorrectAnswers: [
+      'Directly applying "Publish" deny permissions to content editors',
+      'Using Sitecore CLI to enforce publishing restrictions',
+      'Restricting access to the publishing target through network firewalls',
+    ],
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '324',
+    question: 'A marketing team wants to reuse a Promotional Banner (consisting of an image, title, description, and call-to-action link) across multiple landing pages and different sections of the website. Each banner instance needs to have the same structure but different content. What content modeling approach, central to headless development, best facilitates this content reuse and maintainability?',
+    correctAnswer: 'Creating a Promotional Banner data template and defining individual DataSource Items based on this template, which are then referenced by Promotional Banner renderings on various pages',
+    incorrectAnswers: [
+      'Embedding all banner content directly within the page item\'s Rich Text field to ensure it\'s always associated with the page',
+      'Duplicating the Promotional Banner component and its content directly on every page where it is needed',
+      'Using Rendering Parameters on the banner component to store all banner content (image path, title, description, link) for each instance.',
+    ],
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '325',
+    question: 'A developer is configuring a webhook for Sitecore Experience Edge. What is the key difference between the OnEnd and OnUpdate execution modes?',
+    correctAnswer: 'OnEnd is the default and only works for publish events, while OnUpdate works for all item events',
+    incorrectAnswers: [
+      'OnUpdate sends a request for each individual item change, while OnEnd sends a single request when the entire job is complete',
+      'OnUpdate allows for a custom request body, while OnEnd has a fixed, unchangeable body',
+      'OnUpdate is an older, deprecated mode, and OnEnd is the recommended modern approach',
+    ],
+    competency: 'SitecoreAI',
+    reference: 'https://doc.sitecore.com/xp/en/developers/101/developer-tools/the-webhook-execution-modes.html',
+  },
+  {
+    id: '326',
+    question: 'In addition to Data Templates and Fields, which Sitecore concepts are integral to designing a robust and maintainable content model, particularly for scaling?',
+    correctAnswer: ['Standard Values', 'Sections (within a template)', 'Template Inheritance'],
+    incorrectAnswers: [
+      'Experience Editor Ribbon Tabs',
+      'Rendering Variants',
+    ],
+    isMultiSelect: true,
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '327',
+    question: 'A developer needs to render a component differently based on whether the page is in Edit mode versus Normal mode, and also needs to access the current page\'s language. Which JSS hook is most appropriate for accessing this information efficiently?',
+    correctAnswer: 'useSitecoreContext',
+    incorrectAnswers: [
+      'usePersonalization',
+      'useField',
+      'useComponentProps',
+    ],
+    explanation: 'This component utilizes the withSitecoreContext Higher-Order Component (HOC) provided by Sitecore JSS. The withSitecoreContext HOC injects (wraps) the current Sitecore context data (such as pageState, route, site, language, layout, etc.) as props into your component. This is invaluable for components that need to react to the current page\'s state, language, layout or other context-specific information. Additional resources: https://doc.sitecore.com/xp/en/developers/hd/22/sitecore-headless-development/accessing-the-sitecore-context-data-in-a-react-component.html, https://github.com/Sitecore/jss/blob/release/22.0.0/ref-docs/sitecore-jss-nextjs/index/functions/withSitecoreContext.md',
+    reference: 'https://github.com/Sitecore/jss/blob/release/22.0.0/ref-docs/sitecore-jss-nextjs/index/functions/useSitecoreContext.md',
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '328',
+    question: 'Beyond basic content and layout, what advanced information can be expected in the JSON output from the Layout Service, crucial for dynamic and personalized headless experiences?',
+    correctAnswer: [
+      'Component-level data sources, including referenced content items, along with their field values',
+      'Personalization variants applicable to specific components or placeholders, allowing the front-end to render tailored experiences',
+      'Rendering parameters for each component instance, allowing front-end components to adjust their behavior or styling dynamically',
+    ],
+    incorrectAnswers: [
+      'The complete compiled client-side JavaScript bundle for the entire front-end application',
+    ],
+    isMultiSelect: true,
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '329',
+    question: 'Neglecting to properly configure Standard Values for a critical content template can lead to which of the following long-term consequences in a large SitecoreAI implementation?',
+    correctAnswer: 'Each newly created item requires manual setting of default field values and insert options, leading to inconsistency and increased authoring time',
+    incorrectAnswers: [
+      'Automatic application of a Draft workflow state to all new items, bypassing content review processes',
+      'Increased bandwidth consumption on Experience Edge due to larger API payloads',
+      'The inability to publish any content items based on that template to Experience Edge',
+    ],
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '330',
+    question: 'A content editor in SitecoreAI CMS reports that they cannot see a specific news article in the content tree, although they believe they should have permission. Which security interface should an administrator use to quickly determine the effective permissions for that specific user on that particular news article?',
+    correctAnswer: 'Access Viewer',
+    incorrectAnswers: [
+      'Role Manager',
+      'Security Editor',
+      'User Manager',
+    ],
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '331',
+    question: 'A developer wants to create a serialization package (.itempackage file) that includes only the items defined by "Feature.Analytics.module.json". How can they specify this module when running the "ser package create" command?',
+    correctAnswer: 'By setting a "packageScope" property in the .module.json',
+    incorrectAnswers: [
+      'By manually listing all desired items in the command',
+      'By adding the module name to the command\'s output name',
+      'By using the "-i" or "--include" option with the module\'s name',
+    ],
+    competency: 'SitecoreAI',
+  },
+  {
+    id: '332',
+    question: 'What is the primary advantage of using JSS field helper components (like Text, RichText, Image, Link) over directly accessing the "value" property of a field object ("props.fields.myField.value") when building a JSS Next.js application, especially from a content authoring perspective?',
+    correctAnswer: 'Field helpers enable inline editing and other Page builder functionalities, providing a seamless authoring experience',
+    incorrectAnswers: [
+      'Field helpers automatically fetch related data for referenced items, reducing GraphQL queries',
+      'Field helpers provide built-in SEO optimization that direct value access does not',
+      'Field helpers significantly reduce the bundle size of the Next.js application',
+    ],
+    competency: 'SitecoreAI',
+  },
 ];
 
 export function shuffleArray<T>(array: T[]): T[] {
@@ -3618,7 +4163,11 @@ export function getRandomQuestions(count: number = 5): Question[] {
 }
 
 export function shuffleAnswers(question: Question): string[] {
-  const allAnswers = [question.correctAnswer, ...question.incorrectAnswers];
+  // Handle multi-select questions where correctAnswer is an array
+  const correctAnswers = Array.isArray(question.correctAnswer) 
+    ? question.correctAnswer 
+    : [question.correctAnswer];
+  const allAnswers = [...correctAnswers, ...question.incorrectAnswers];
   return shuffleArray(allAnswers);
 }
 

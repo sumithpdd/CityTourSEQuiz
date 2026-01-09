@@ -19,6 +19,7 @@ interface ResultsProps {
       explanation?: string;
       reference?: string;
       competency?: string;
+      isMultiSelect?: boolean;
     }>;
   };
   userData: {
@@ -172,6 +173,11 @@ export function Results({ results, userData }: ResultsProps) {
               <p style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#fff' }}>
                 Q{index + 1}. {result.question}
               </p>
+              {result.isMultiSelect && (
+                <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', marginBottom: '0.5rem', fontStyle: 'italic' }}>
+                  (Multiple answers required)
+                </p>
+              )}
               <p
                 style={{ color: result.isCorrect ? '#1dd1a1' : '#f85032', marginBottom: '0.25rem', fontWeight: 600 }}
               >

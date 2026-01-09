@@ -24,7 +24,7 @@ const DEFAULT_QUESTION_COUNT = 100;
 export function Quiz({ userData, onComplete }: QuizProps) {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selectedAnswers, setSelectedAnswers] = useState<{ [key: string]: string }>({});
+  const [selectedAnswers, setSelectedAnswers] = useState<{ [key: string]: string | string[] }>({});
   const [shuffledAnswers, setShuffledAnswers] = useState<{ [key: string]: string[] }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [questionCount, setQuestionCount] = useState(DEFAULT_QUESTION_COUNT);
@@ -122,12 +122,35 @@ export function Quiz({ userData, onComplete }: QuizProps) {
       // Don't allow changing answer after feedback is shown
       return;
     }
-    setSelectedAnswers({
-      ...selectedAnswers,
-      [questionId]: answer,
-    });
-    // Show feedback immediately when answer is selected
-    setShowAnswerFeedback(true);
+    
+    const currentQuestion = questions.find(q => q.id === questionId);
+    const isMultiSelect = currentQuestion?.isMultiSelect;
+    
+    if (isMultiSelect) {
+      // Handle multi-select: toggle the answer in the array
+      const currentSelections = (selectedAnswers[questionId] as string[]) || [];
+      const newSelections = currentSelections.includes(answer)
+        ? currentSelections.filter(a => a !== answer)
+        : [...currentSelections, answer];
+      
+      setSelectedAnswers({
+        ...selectedAnswers,
+        [questionId]: newSelections,
+      });
+      
+      // Show feedback when at least one answer is selected
+      if (newSelections.length > 0) {
+        setShowAnswerFeedback(true);
+      }
+    } else {
+      // Handle single-select: replace the answer
+      setSelectedAnswers({
+        ...selectedAnswers,
+        [questionId]: answer,
+      });
+      // Show feedback immediately when answer is selected
+      setShowAnswerFeedback(true);
+    }
   };
 
   const handleNext = () => {
@@ -245,18 +268,32 @@ export function Quiz({ userData, onComplete }: QuizProps) {
       let correctCount = 0;
       const questionResults = questions.map((q) => {
         const selected = selectedAnswers[q.id];
-        const isCorrect = selected === q.correctAnswer;
+        let isCorrect = false;
+        
+        if (q.isMultiSelect && Array.isArray(q.correctAnswer)) {
+          // For multi-select: check if all correct answers are selected and no incorrect ones
+          const selectedArray = Array.isArray(selected) ? selected : [];
+          const correctAnswers = q.correctAnswer;
+          const allCorrectSelected = correctAnswers.every(ans => selectedArray.includes(ans));
+          const noIncorrectSelected = selectedArray.every(ans => correctAnswers.includes(ans));
+          isCorrect = allCorrectSelected && noIncorrectSelected && selectedArray.length === correctAnswers.length;
+        } else {
+          // For single-select: check if selected matches correct answer
+          isCorrect = selected === q.correctAnswer;
+        }
+        
         if (isCorrect) correctCount++;
 
         return {
           questionId: q.id,
           question: q.question,
-          correctAnswer: q.correctAnswer,
-          selectedAnswer: selected || 'No answer',
+          correctAnswer: Array.isArray(q.correctAnswer) ? q.correctAnswer.join(', ') : q.correctAnswer,
+          selectedAnswer: Array.isArray(selected) ? selected.join(', ') : (selected || 'No answer'),
           isCorrect,
           explanation: q.explanation,
           reference: q.reference,
           competency: q.competency,
+          isMultiSelect: q.isMultiSelect,
         };
       });
 
@@ -368,8 +405,15 @@ export function Quiz({ userData, onComplete }: QuizProps) {
   const currentQuestion = questions[currentQuestionIndex];
   const currentAnswers = shuffledAnswers[currentQuestion.id] || [];
   const selectedAnswer = selectedAnswers[currentQuestion.id];
+  const isMultiSelect = currentQuestion.isMultiSelect || false;
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
-  const canSubmit = questions.every((q) => selectedAnswers[q.id]);
+  const canSubmit = questions.every((q) => {
+    const selected = selectedAnswers[q.id];
+    if (q.isMultiSelect) {
+      return Array.isArray(selected) && selected.length > 0;
+    }
+    return selected;
+  });
   const firstName = userData.name.split(' ')[0] || userData.name;
 
   return (
@@ -463,11 +507,23 @@ export function Quiz({ userData, onComplete }: QuizProps) {
             />
           </div>
         )}
+        {isMultiSelect && (
+          <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', marginBottom: '1rem', fontStyle: 'italic' }}>
+            Select all that apply
+          </p>
+        )}
         <ul className="answers-list">
           {currentAnswers.map((answer, index) => {
-            const isSelected = selectedAnswer === answer;
-            const isCorrect = answer === currentQuestion.correctAnswer;
+            const isSelected = isMultiSelect
+              ? (Array.isArray(selectedAnswer) && selectedAnswer.includes(answer))
+              : selectedAnswer === answer;
+            
+            const isCorrect = isMultiSelect
+              ? (Array.isArray(currentQuestion.correctAnswer) && currentQuestion.correctAnswer.includes(answer))
+              : answer === currentQuestion.correctAnswer;
+            
             const showCorrectness = showAnswerFeedback && isSelected;
+            const showIncorrect = showAnswerFeedback && !isSelected && isCorrect && isMultiSelect;
             
             return (
               <li key={index} className="answer-item">
@@ -476,6 +532,8 @@ export function Quiz({ userData, onComplete }: QuizProps) {
                   className={`answer-button ${
                     showCorrectness 
                       ? (isCorrect ? 'correct' : 'incorrect')
+                      : showIncorrect
+                      ? 'incorrect'
                       : isSelected 
                       ? 'selected' 
                       : ''
@@ -484,13 +542,26 @@ export function Quiz({ userData, onComplete }: QuizProps) {
                   disabled={showAnswerFeedback}
                   style={{
                     cursor: showAnswerFeedback ? 'not-allowed' : 'pointer',
-                    opacity: showAnswerFeedback && !isSelected ? 0.6 : 1,
+                    opacity: showAnswerFeedback && !isSelected && !showIncorrect ? 0.6 : 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
                   }}
                 >
-                  {answer}
-                  {showCorrectness && (
+                  <span>{answer}</span>
+                  {isMultiSelect && (
+                    <span style={{ marginLeft: '0.5rem', fontSize: '1.2rem' }}>
+                      {isSelected ? '☑' : '☐'}
+                    </span>
+                  )}
+                  {showCorrectness && !isMultiSelect && (
                     <span style={{ marginLeft: '0.5rem', fontSize: '1.2rem' }}>
                       {isCorrect ? '✓' : '✗'}
+                    </span>
+                  )}
+                  {showIncorrect && (
+                    <span style={{ marginLeft: '0.5rem', fontSize: '1.2rem' }}>
+                      ✓ (should be selected)
                     </span>
                   )}
                 </button>
@@ -504,9 +575,17 @@ export function Quiz({ userData, onComplete }: QuizProps) {
             explanation={currentQuestion.explanation}
             reference={currentQuestion.reference}
             competency={currentQuestion.competency}
-            isCorrect={selectedAnswer === currentQuestion.correctAnswer}
-            selectedAnswer={selectedAnswer}
-            correctAnswer={currentQuestion.correctAnswer}
+            isCorrect={isMultiSelect
+              ? (Array.isArray(selectedAnswer) && Array.isArray(currentQuestion.correctAnswer)
+                  ? currentQuestion.correctAnswer.every(ans => selectedAnswer.includes(ans))
+                    && selectedAnswer.every(ans => currentQuestion.correctAnswer.includes(ans))
+                    && selectedAnswer.length === currentQuestion.correctAnswer.length
+                  : false)
+              : selectedAnswer === currentQuestion.correctAnswer}
+            selectedAnswer={Array.isArray(selectedAnswer) ? selectedAnswer.join(', ') : selectedAnswer}
+            correctAnswer={Array.isArray(currentQuestion.correctAnswer) 
+              ? currentQuestion.correctAnswer.join(', ') 
+              : currentQuestion.correctAnswer}
           />
         )}
       </div>

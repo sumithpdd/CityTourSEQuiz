@@ -156,7 +156,7 @@ The app will be automatically deployed on every push to the main branch.
 
 ## Questions
 
-The quiz randomly selects 5 questions from a pool of 20 questions about SitecoreAI, Sitecore Symposium 2025, and Sitecore platform capabilities from [sitecore.com/platform](https://www.sitecore.com/platform). 
+The quiz randomly selects questions from a pool of 280+ questions about SitecoreAI, Sitecore Symposium 2025, and Sitecore platform capabilities from [sitecore.com/platform](https://www.sitecore.com/platform). Questions can be single-select (one correct answer) or multi-select (multiple correct answers). 
 
 ### Adding More Questions
 
@@ -176,9 +176,46 @@ The app will automatically:
 Each question should have:
 - `id`: Unique identifier
 - `question`: The question text
-- `correctAnswer`: The correct answer
+- `correctAnswer`: The correct answer (string for single-select, or string[] for multi-select)
 - `incorrectAnswers`: Array of incorrect answer options (minimum 3 recommended)
+- `isMultiSelect` (optional): Set to `true` for questions that allow multiple correct answers
 - `imageUrl` (optional): URL to an image if the question requires one
+- `explanation` (optional): Explanation shown after answering
+- `reference` (optional): Reference link for further reading
+- `competency` (optional): Tag for categorizing questions (e.g., "SitecoreAI", "Competency 1: SitecoreAI CMS Architecture")
+
+### Question Types
+
+The quiz supports two question types:
+
+1. **Single-Select Questions** (default):
+   - Users select one answer from multiple options
+   - `correctAnswer` is a string
+   - Example:
+     ```typescript
+     {
+       id: '1',
+       question: 'What is SitecoreAI?',
+       correctAnswer: 'A next-gen AI-first composable SaaS platform',
+       incorrectAnswers: ['A traditional CMS', 'A commerce platform'],
+     }
+     ```
+
+2. **Multi-Select Questions**:
+   - Users can select multiple answers (checkboxes instead of radio buttons)
+   - `correctAnswer` is an array of strings
+   - `isMultiSelect` must be set to `true`
+   - All correct answers must be selected, and no incorrect ones, for the question to be marked correct
+   - Example:
+     ```typescript
+     {
+       id: '2',
+       question: 'Which tools can be used to create a new project in SitecoreAI?',
+       correctAnswer: ['Sitecore Cloud CLI', 'SitecoreAI Deploy app', 'Deploy REST API'],
+       incorrectAnswers: ['Experience Edge', 'Sitecore Cloud Portal'],
+       isMultiSelect: true,
+     }
+     ```
 
 ### Getting Questions from Sitecore Docs
 
